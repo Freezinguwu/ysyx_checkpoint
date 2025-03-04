@@ -1,18 +1,20 @@
-
-module  ALU(
-    input[3:0]     dA,
-    input[3:0]     dB,
-    input[3:0]     operator_sel,
-    output         carry,
-    output         overflow,
-    output reg[3:0]    result,
-    output         zero
+`define DATA_LEN 4 
+//ALU
+module ALU(
+    input[`DATA_LEN-1:0]        Ai,
+    input[`DATA_LEN-1:0]        Bi,
+    input[3:0]                  operator_sel,
+    output                      overflow,
+    output reg[`DATA_LEN-1:0]   result,
+    output                      zero
 );
-    reg[7:0] operate;
-    reg overflow_in;
-    reg[3:0] Ai;
-    reg[3:0] Bi;
-
+    reg[7:0] operate; //command
+    reg[`DATA_LEN-1:0] dA;
+    reg[`DATA_LEN-1:0] dB;
+    //sign/unsigned num
+    inv inv_a(.din(Ai),.din_inv(dA));
+    inv inv_b(.din(Bi),.din_inv(dB));
+    
     //operator | add | sub | not | and | or | xor | ilt | iet
     always @(operator_sel) begin
         case(operator_sel)
@@ -27,30 +29,22 @@ module  ALU(
         default: operate <= 8'b11111111;
         endcase
         
-        //sign/unsigned num
-        inv();
-        inv();
-        
         // judge 
         if(operate == 8'b11111111)
-            result = 8;
+        result <= 8;
         else begin
-        result <= operate[7] == 1 ? dA + dB : 7;
-        result <= operate[6] == 1 ? dA + dB : 6;
-        result <= operate[5] == 1 ? dA + dB : 5;
-        result <= operate[4] == 1 ? dA + dB : 4;
-        result <= operate[3] == 1 ? dA + dB : 3;
-        result <= operate[2] == 1 ? dA + dB : 2;
-        result <= operate[1] == 1 ? dA + dB : 1;
-        result <= operate[0] == 1 ? dA + dB : 0;
+        
+        result <= operate[7] == 1  ? dA + dB : 0; //add
+        result <= operate[6] == 1  ? Ai + dB : 1; //sub
+        result <= operate[5] == 1  ? ~dA     : 2; //not
+        result <= operate[4] == 1  ? dA & dB : 3; //and
+        result <= operate[3] == 1  ? dA | dB : 4; //or
+        result <= operate[2] == 1  ? dA ^ dB : 5; //xor   
         end
     end
 
+    assign overflow = ~((dA[`DATA_LEN-1] & dB[`DATA_LEN-1]) & (result[`DATA_LEN-1] & dA[`DATA_LEN-1])) ^ ~result[`DATA_LEN-1];
+    assign zero = (result == 4'b0000);
 endmodule
 
-module inv(
-    input[3:0]  din,
-    output[3:0] din_inv
-);
-    assign din_inv = ~din + 32'd1;
-endmodule
+
