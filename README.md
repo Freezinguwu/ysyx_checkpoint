@@ -1,6 +1,3 @@
-# "一生一芯"工程项目
-
-this is my project! welcome you to see this!
-thanks for everyone who loves this! I will start my journey....
+这个是本人的一生一芯的学习存档处，希望这个可以监督我学习，然后如果有什么值得的想法可以分享在这里.....
 
 [lecture note]: https://ysyx.oscc.cc/docs/
